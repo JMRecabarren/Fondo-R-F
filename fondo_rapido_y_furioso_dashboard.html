@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fondo Rápido y Furioso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0A0D; --surface:#131318; --border:#26262E;
+    --text-primary:#F2F1ED; --text-secondary:#9A9AA4; --text-muted:#5C5C66;
+    --orange:#FF6B35; --teal:#18D6A6; --amber:#FFC145; --red:#FF5D5D;
+    --font-display:'Rajdhani',sans-serif; --font-body:'Inter',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text-primary);font-family:var(--font-body);-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:600px;margin:0 auto;padding:24px 18px 50px;}
+  .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--orange);margin:0 0 8px;}
+  h1{font-family:var(--font-display);font-weight:700;font-size:clamp(26px,7vw,36px);margin:0 0 16px;line-height:1.05;}
+
+  .tabs{display:flex;gap:8px;margin-bottom:22px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;}
+  .tab{flex:1;text-align:center;padding:9px 0;border-radius:7px;font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);cursor:pointer;user-select:none;}
+  .tab.active{background:var(--orange);color:#1A0D06;font-weight:600;}
+
+  .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px;}
+  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 10px;}
+  .kpi-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+  .kpi-value{font-family:var(--font-mono);font-weight:600;font-size:clamp(14px,4vw,18px);}
+  .kpi-value.teal{color:var(--teal);}
+  .kpi-value.orange{color:var(--orange);}
+
+  .list-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin:0 0 10px;}
+  .car{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;}
+  .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .car-info{flex:1;min-width:0;}
+  .car-name{font-weight:500;font-size:14px;}
+  .car-sub{font-size:11px;color:var(--text-muted);font-family:var(--font-mono);margin-top:2px;}
+  .car-right{text-align:right;flex-shrink:0;}
+  .car-value{font-family:var(--font-mono);font-weight:600;font-size:14px;}
+  .car-value-label{font-size:10px;color:var(--text-muted);margin-top:2px;}
+
+  .meta-row{display:flex;justify-content:space-between;align-items:center;margin-top:26px;}
+  .meta-item{font-size:11px;color:var(--text-muted);font-family:var(--font-mono);}
+  .refresh-btn{font-family:var(--font-mono);font-size:12px;color:var(--teal);background:rgba(24,214,166,.14);border:1px solid rgba(24,214,166,.3);border-radius:6px;padding:5px 11px;cursor:pointer;}
+
+  .demo-banner{display:none;background:rgba(255,107,53,.14);border:1px solid rgba(255,107,53,.35);font-size:12px;border-radius:8px;padding:10px 12px;margin-bottom:18px;line-height:1.5;color:var(--text-secondary);}
+  .demo-banner.show{display:block;}
+  .demo-banner b{color:var(--orange);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Sellcar · Fondo Rápido y Furioso</p>
+  <h1 id="pageTitle">Vista inversionista</h1>
+
+  <div class="tabs">
+    <div class="tab active" id="tabInversionista" onclick="switchView('inversionista')">Inversionista</div>
+    <div class="tab" id="tabSellcar" onclick="switchView('sellcar')">Sellcar</div>
+  </div>
+
+  <div class="demo-banner" id="demoBanner">
+    Mostrando datos de ejemplo. Pega los links CSV de <b>Histórico</b> y <b>Autos</b> en <b>CONFIG</b> al inicio del archivo para conectar tu Sheet en vivo.
+  </div>
+
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <p class="list-label" id="listLabel">Autos</p>
+  <div id="carList"></div>
+
+  <div class="meta-row">
+    <span class="meta-item">Actualizado: <b id="lastUpdated" style="color:var(--text-secondary)">—</b></span>
+    <button class="refresh-btn" onclick="loadData()">Actualizar</button>
+  </div>
+</div>
+
+<script>
+const CONFIG = { historicoCSV: "", autosCSV: "" };
+
+const FALLBACK_HISTORICO = `ID_Ronda,ID_Vehiculo,Marca,Modelo,Estado,Fecha_Compra,Fecha_Venta,Gasto_Compra,Gasto_Plataforma,Gasto_Transferencia,Gasto_Lavado,Gasto_Arreglos,Monto _Inversión,Monto_Venta,Utilidad_Bruta,Utilidad_Fondo,Utilidad_Celcar,Clave
+R1,A1,VW,Amarok,Vendido,2026/07/16,2026/08/15,"$15,900,000","$70,000","$397,500","$50,000",-,"$16,417,500","$18,500,000","$2,082,500","$833,000","$1,249,500",R1-1
+R1,A2,Great Wall,Poer,Vendido,2026/07/16,2026/08/15,"$15,200,000","$70,000","$390,000","$50,000",-,"$15,710,000","$18,000,000","$2,290,000","$916,000","$1,374,000",R1-2
+R1,A3,VW,Nivus,Vendido,2026/07/16,2026/08/15,"$13,100,000","$70,000","$345,000","$50,000",-,"$13,565,000","$15,000,000","$1,435,000","$574,000","$861,000",R1-3
+R2,A4,Ferrari,Turbo,Vendido,2026/07/16,2026/08/15,"$20,000,000","$70,000","$495,000","$50,000",-,"$20,615,000","$25,000,000","$4,385,000","$1,754,000","$2,631,000",R2-1
+R3,A5,Porsche,Trueno,Vendido,2026/07/16,2026/08/15,"$20,000,000","$70,000","$495,000","$50,000",-,"$20,615,000","$25,000,000","$4,385,000","$1,754,000","$2,631,000",R3-1
+R4,A6,Subaru,Outback,Vendido,2026/07/16,2026/08/15,"$20,000,000","$70,000","$495,000","$50,000",-,"$20,615,000","$25,000,000","$4,385,000","$1,754,000","$2,631,000",R4-1
+R2,A7,Ferrari,Turbo,Vendido,2026/07/16,2026/08/15,"$20,000,000","$70,000","$495,000","$50,000",-,"$20,615,000","$25,000,000","$4,385,000","$1,754,000","$2,631,000",R2-2
+R3,A8,Porsche,Trueno,Vendido,2026/07/16,2026/08/15,"$20,000,000","$70,000","$495,000","$50,000",-,"$20,615,000","$25,000,000","$4,385,000","$1,754,000","$2,631,000",R3-2
+R4,A9,Subaru,Outback,Vendido,2026/07/16,2026/08/15,"$20,000,000","$70,000","$495,000","$50,000",-,"$20,615,000","$25,000,000","$4,385,000","$1,754,000","$2,631,000",R4-2`;
+
+const FALLBACK_AUTOS = `ID_Ronda,Aportante,Monto_Aporte,Pct_Participacion,ID_Vehiculo,Marca,Modelo,Estado,Fecha_Compra,Fecha_Venta,Inversion_Asignada,Venta_Asignada,Utilidad_Bruta_Asignada,Utilidad_Fondo_Asignada,ROI
+R1,Fela,"$13,000,000",28.9%,A1,VW,Amarok,Vendido,2026/07/16,2026/08/15,"$4,742,833","$5,344,444","$601,611","$240,644",5.1%
+R1,Pelao,"$2,000,000",4.4%,A1,VW,Amarok,Vendido,2026/07/16,2026/08/15,"$729,667","$822,222","$92,556","$37,022",5.1%
+R1,Sellcar,"$13,000,000",28.9%,A1,VW,Amarok,Vendido,2026/07/16,2026/08/15,"$4,742,833","$5,344,444","$601,611","$240,644",5.1%
+R1,Jose,"$17,000,000",37.8%,A1,VW,Amarok,Vendido,2026/07/16,2026/08/15,"$6,202,167","$6,988,889","$786,722","$314,689",5.1%
+R2,Valdi,"$10,000,000",50.0%,A4,Ferrari,Turbo,Vendido,2026/07/16,2026/08/15,"$10,307,500","$12,500,000","$2,192,500","$877,000",8.5%
+R2,Pelao,"$10,000,000",50.0%,A4,Ferrari,Turbo,Vendido,2026/07/16,2026/08/15,"$10,307,500","$12,500,000","$2,192,500","$877,000",8.5%
+R3,Jose,"$10,000,000",50.0%,A5,Porsche,Trueno,Vendido,2026/07/16,2026/08/15,"$10,307,500","$12,500,000","$2,192,500","$877,000",8.5%
+R3,Valdi,"$10,000,000",50.0%,A5,Porsche,Trueno,Vendido,2026/07/16,2026/08/15,"$10,307,500","$12,500,000","$2,192,500","$877,000",8.5%
+R4,Fela,"$10,000,000",50.0%,A6,Subaru,Outback,Vendido,2026/07/16,2026/08/15,"$10,307,500","$12,500,000","$2,192,500","$877,000",8.5%
+R4,Pelao,"$10,000,000",50.0%,A6,Subaru,Outback,Vendido,2026/07/16,2026/08/15,"$10,307,500","$12,500,000","$2,192,500","$877,000",8.5%`;
+
+function parseCSV(text){
+  const rows=[]; let i=0, field='', row=[], inQuotes=false;
+  const pushField=()=>{row.push(field);field='';};
+  const pushRow=()=>{pushField();rows.push(row);row=[];};
+  while(i<text.length){
+    const c=text[i];
+    if(inQuotes){
+      if(c==='"'){ if(text[i+1]==='"'){field+='"';i+=2;continue;} inQuotes=false;i++;continue; }
+      field+=c;i++;continue;
+    } else {
+      if(c==='"'){inQuotes=true;i++;continue;}
+      if(c===','){pushField();i++;continue;}
+      if(c==='\r'){i++;continue;}
+      if(c==='\n'){pushRow();i++;continue;}
+      field+=c;i++;continue;
+    }
+  }
+  if(field.length||row.length){pushRow();}
+  if(rows.length && rows[rows.length-1].every(v=>v==='')) rows.pop();
+  const headers=rows[0].map(h=>h.trim());
+  return rows.slice(1).filter(r=>r.some(v=>v!=='')).map(r=>{
+    const obj={}; headers.forEach((h,idx)=>obj[h]=(r[idx]!==undefined?r[idx].trim():'')); return obj;
+  });
+}
+function get(row,...keys){ for(const k of keys){ if(row[k]!==undefined) return row[k]; } return ''; }
+function toNumber(v){
+  if(v===undefined||v===null) return 0;
+  const s=String(v).replace(/\$/g,'').replace(/,/g,'').replace(/%/g,'').trim();
+  if(s===''||s==='-') return 0;
+  const n=parseFloat(s); return isNaN(n)?0:n;
+}
+function clp(n){ return '$'+Math.round(n).toLocaleString('en-US'); }
+function pct(n,d=1){ return n.toFixed(d)+'%'; }
+
+async function fetchCSV(url, fallback){
+  if(url && url.trim()){
+    try{ const res=await fetch(url,{cache:'no-store'}); if(!res.ok) throw new Error('bad'); return parseCSV(await res.text()); }
+    catch(e){ console.warn('CSV fetch failed, using fallback:',e); return parseCSV(fallback); }
+  }
+  return parseCSV(fallback);
+}
+
+function semaforo(row){
+  if(row['Estado']==='Vendido') return {color:'var(--teal)', label:'Vendido'};
+  const start=new Date((row['Fecha_Compra']||'').replace(/\//g,'-'));
+  const days=Math.floor((new Date()-start)/86400000);
+  if(days<=30) return {color:'var(--teal)', label:days+' días en inventario'};
+  if(days<=60) return {color:'var(--amber)', label:days+' días en inventario'};
+  return {color:'var(--red)', label:days+' días en inventario'};
+}
+
+let DATA={historico:[],autos:[]};
+let currentView='inversionista';
+
+function switchView(view){
+  currentView=view;
+  document.getElementById('tabInversionista').classList.toggle('active', view==='inversionista');
+  document.getElementById('tabSellcar').classList.toggle('active', view==='sellcar');
+  document.getElementById('pageTitle').textContent = view==='inversionista' ? 'Vista inversionista' : 'Vista Sellcar';
+  render();
+}
+
+function render(){
+  const {historico, autos} = DATA;
+  const inversion = historico.reduce((s,r)=>s+toNumber(get(r,'Monto _Inversión','Monto_Inversión')),0);
+  const utilidadFondo = historico.reduce((s,r)=>s+toNumber(r['Utilidad_Fondo']),0);
+  const utilidadSellcar = historico.reduce((s,r)=>s+toNumber(r['Utilidad_Celcar']),0);
+  const vendidos = historico.filter(r=>r['Estado']==='Vendido').length;
+  const total = historico.length;
+  const rentabilidad = inversion>0 ? (utilidadFondo/inversion*100) : 0;
+
+  const seen=new Set(); let capitalComprometido=0;
+  autos.forEach(r=>{ const k=r['ID_Ronda']+'|'+r['Aportante']; if(!seen.has(k)){seen.add(k); capitalComprometido+=toNumber(r['Monto_Aporte']);} });
+
+  const kpiRow=document.getElementById('kpiRow');
+  const listLabel=document.getElementById('listLabel');
+  const carList=document.getElementById('carList');
+
+  if(currentView==='inversionista'){
+    kpiRow.innerHTML = `
+      <div class="kpi"><div class="kpi-label">Capital</div><div class="kpi-value">${clp(capitalComprometido)}</div></div>
+      <div class="kpi"><div class="kpi-label">Utilidad fondo</div><div class="kpi-value teal">${clp(utilidadFondo)}</div></div>
+      <div class="kpi"><div class="kpi-label">Rentabilidad</div><div class="kpi-value orange">${pct(rentabilidad)}</div></div>
+    `;
+    listLabel.textContent = 'Autos del fondo';
+    carList.innerHTML = historico.map(r=>{
+      const s=semaforo(r);
+      const inv=toNumber(get(r,'Monto _Inversión','Monto_Inversión'));
+      const uf=toNumber(r['Utilidad_Fondo']);
+      const rentCar = inv>0 ? (uf/inv*100) : 0;
+      return `
+        <div class="car">
+          <span class="dot" style="background:${s.color}"></span>
+          <div class="car-info">
+            <div class="car-name">${r['Marca']} ${r['Modelo']}</div>
+            <div class="car-sub">${r['ID_Ronda']} · ${s.label}</div>
+          </div>
+          <div class="car-right">
+            <div class="car-value" style="color:var(--teal)">${pct(rentCar)}</div>
+            <div class="car-value-label">${clp(uf)}</div>
+          </div>
+        </div>`;
+    }).join('');
+  } else {
+    kpiRow.innerHTML = `
+      <div class="kpi"><div class="kpi-label">En inventario</div><div class="kpi-value orange">${total-vendidos}</div></div>
+      <div class="kpi"><div class="kpi-label">Vendidos</div><div class="kpi-value teal">${vendidos}<span style="color:var(--text-muted)"> / ${total}</span></div></div>
+      <div class="kpi"><div class="kpi-label">Comisión Sellcar</div><div class="kpi-value">${clp(utilidadSellcar)}</div></div>
+    `;
+    listLabel.textContent = 'Flota';
+    carList.innerHTML = historico.map(r=>{
+      const s=semaforo(r);
+      return `
+        <div class="car">
+          <span class="dot" style="background:${s.color}"></span>
+          <div class="car-info">
+            <div class="car-name">${r['Marca']} ${r['Modelo']}</div>
+            <div class="car-sub">${s.label}</div>
+          </div>
+          <div class="car-right">
+            <div class="car-value">${clp(toNumber(r['Utilidad_Celcar']))}</div>
+            <div class="car-value-label">comisión</div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+}
+
+async function loadData(){
+  document.getElementById('demoBanner').classList.toggle('show', !CONFIG.historicoCSV || !CONFIG.autosCSV);
+  const [historico, autos] = await Promise.all([
+    fetchCSV(CONFIG.historicoCSV, FALLBACK_HISTORICO),
+    fetchCSV(CONFIG.autosCSV, FALLBACK_AUTOS)
+  ]);
+  DATA={historico, autos};
+  render();
+  document.getElementById('lastUpdated').textContent = new Date().toLocaleString('es-CL',{dateStyle:'medium',timeStyle:'short'});
+}
+
+loadData();
+setInterval(loadData, 60000);
+</script>
+</body>
+</html>
