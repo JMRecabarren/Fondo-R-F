@@ -245,7 +245,7 @@ function showView(view){
 }
 
 function populateInvestorSelect(){
-  const names=[...new Set(DATA.autos.map(r=>r['Aportante']).filter(n=>n && n!=='Sellcar'))].sort();
+  const names=[...new Set(DATA.autos.map(r=>r['Aportante']).filter(n=>n))].sort();
   const sel=document.getElementById('investorSelect');
   sel.innerHTML = `<option value="__all__">Fondo (todos)</option>` + names.map(n=>`<option value="${n}">${n}</option>`).join('');
 }
