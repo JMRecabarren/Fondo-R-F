@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fondo Rápido y Furioso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{font-family:'Inter',sans-serif;margin:0;}
+  .font-display{font-family:'Space Grotesk',sans-serif;}
+  .glow{text-shadow:0 0 24px rgba(0,255,135,.45);}
+  .hidden{display:none !important;}
+
+  /* layout */
+  .flex{display:flex;}
+  .flex-1{flex:1 1 0%;}
+  .flex-col{flex-direction:column;}
+  .flex-shrink-0{flex-shrink:0;}
+  .items-center{align-items:center;}
+  .justify-between{justify-content:space-between;}
+  .justify-center{justify-content:center;}
+  .grid{display:grid;}
+  .grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr));}
+  .grid-cols-5{grid-template-columns:repeat(5,minmax(0,1fr));}
+  .sticky{position:sticky;}
+  .top-0{top:0;}
+  .z-10{z-index:10;}
+  .min-h-screen{min-height:100vh;}
+  .min-w-0{min-width:0;}
+  .w-full{width:100%;}
+  .max-w-md{max-width:28rem;}
+  .mx-auto{margin-left:auto;margin-right:auto;}
+
+  /* spacing */
+  .gap-1{gap:0.25rem;}
+  .gap-2{gap:0.5rem;}
+  .gap-3{gap:0.75rem;}
+  .gap-6{gap:1.5rem;}
+  .p-4{padding:1rem;}
+  .p-3{padding:0.75rem;}
+  .px-4{padding-left:1rem;padding-right:1rem;}
+  .px-5{padding-left:1.25rem;padding-right:1.25rem;}
+  .py-2{padding-top:0.5rem;padding-bottom:0.5rem;}
+  .py-3{padding-top:0.75rem;padding-bottom:0.75rem;}
+  .pb-16{padding-bottom:4rem;}
+  .pt-2{padding-top:0.5rem;}
+  .pt-1{padding-top:0.25rem;}
+  .pt-6{padding-top:1.5rem;}
+  .mb-1{margin-bottom:0.25rem;}
+  .mb-2{margin-bottom:0.5rem;}
+  .mb-3{margin-bottom:0.75rem;}
+  .mb-6{margin-bottom:1.5rem;}
+  .mb-8{margin-bottom:2rem;}
+  .mb-10{margin-bottom:2.5rem;}
+  .mt-1{margin-top:0.25rem;}
+  .mt-2{margin-top:0.5rem;}
+  .mt-3{margin-top:0.75rem;}
+  .w-2{width:0.5rem;}
+  .h-2{height:0.5rem;}
+
+  /* borders / radius */
+  .border{border-width:1px;border-style:solid;}
+  .border-b{border-bottom-width:1px;border-bottom-style:solid;}
+  .border-t{border-top-width:1px;border-top-style:solid;}
+  .rounded-lg{border-radius:0.5rem;}
+  .rounded-xl{border-radius:0.75rem;}
+  .rounded-2xl{border-radius:1rem;}
+  .rounded-full{border-radius:9999px;}
+
+  /* typography */
+  .text-xs{font-size:0.75rem;line-height:1rem;}
+  .text-sm{font-size:0.875rem;line-height:1.25rem;}
+  .text-5xl{font-size:3rem;line-height:1;}
+  .text-2xl{font-size:1.5rem;line-height:2rem;}
+  .font-bold{font-weight:700;}
+  .font-semibold{font-weight:600;}
+  .font-medium{font-weight:500;}
+  .font-mono{font-family:'JetBrains Mono',ui-monospace,monospace;}
+  .uppercase{text-transform:uppercase;}
+  .tracking-widest{letter-spacing:0.1em;}
+  .text-center{text-align:center;}
+  .text-right{text-align:right;}
+  .truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .transition{transition:all .15s ease;}
+  .bg-black{background-color:#000;}
+  .bg-white{background-color:#fff;}
+  .text-white{color:#fff;}
+  .text-black{color:#000;}
+
+  /* arbitrary values used in this file */
+  .bg-\[\#05060A\]{background-color:#05060A;}
+  .bg-\[\#101319\]{background-color:#101319;}
+  .bg-\[\#F5F7FA\]{background-color:#F5F7FA;}
+  .bg-\[\#00FF87\]{background-color:#00FF87;}
+  .bg-\[\#0057FF\]{background-color:#0057FF;}
+  .text-\[\#0057FF\]{color:#0057FF;}
+  .text-\[\#00FF87\]{color:#00FF87;}
+  .text-\[\#0B0E14\]{color:#0B0E14;}
+  .text-\[\#667085\]{color:#667085;}
+  .text-\[\#7C828D\]{color:#7C828D;}
+  .text-\[\#F0453A\]{color:#F0453A;}
+  .border-\[\#1E232B\]{border-color:#1E232B;}
+  .border-\[\#E3E7EC\]{border-color:#E3E7EC;}
+  .text-\[9px\]{font-size:9px;}
+  .text-\[8px\]{font-size:8px;}
+  .text-\[10px\]{font-size:10px;}
+  .text-\[11px\]{font-size:11px;}
+  .mt-0\.5{margin-top:0.125rem;}
+  .w-2\.5{width:0.625rem;}
+  .h-2\.5{height:0.625rem;}
+</style>
+</head>
+<body class="bg-black">
+
+<!-- ===== TAB BAR (siempre visible) ===== -->
+<div class="sticky top-0 z-10 bg-[#05060A] border-b border-[#1E232B] px-4 py-3">
+  <div class="max-w-md mx-auto flex gap-2">
+    <button id="tabInvestorBtn" onclick="showView('investor')" class="flex-1 py-2 rounded-lg font-display text-sm font-semibold transition">Inversionista</button>
+    <button id="tabSellcarBtn" onclick="showView('sellcar')" class="flex-1 py-2 rounded-lg font-display text-sm font-semibold transition">Sellcar</button>
+  </div>
+</div>
+
+<!-- ===== VISTA INVERSIONISTA ===== -->
+<div id="viewInvestor" class="min-h-screen bg-[#05060A] pb-16">
+  <div class="max-w-md mx-auto px-5 pt-6">
+    <select id="investorSelect" onchange="renderInvestor()" class="w-full bg-[#101319] border border-[#1E232B] text-white rounded-xl px-4 py-3 mb-6 font-display text-sm"></select>
+
+    <div id="investorCapitalRow" class="grid grid-cols-3 gap-2 mb-8"></div>
+
+    <div class="text-center mb-10">
+      <p class="text-[#7C828D] text-xs uppercase tracking-widest mb-2">Utilidad total ganada</p>
+      <p id="investorTotal" class="font-display glow text-[#00FF87] text-5xl font-bold">$0</p>
+      <p id="investorRoi" class="text-[#7C828D] text-sm mt-2"></p>
+    </div>
+
+    <p class="text-[#7C828D] text-xs uppercase tracking-widest mb-3">Inversiones</p>
+    <div id="investorList" class="flex flex-col gap-3"></div>
+  </div>
+</div>
+
+<!-- ===== VISTA SELLCAR ===== -->
+<div id="viewSellcar" class="hidden min-h-screen bg-[#F5F7FA] pb-16">
+  <div class="max-w-md mx-auto px-5 pt-6">
+    <div id="sellcarSemaforo" class="flex items-center justify-center gap-6 mb-10"></div>
+
+    <p class="text-[#667085] text-xs uppercase tracking-widest mb-3">Flota</p>
+    <div id="sellcarList" class="flex flex-col gap-2"></div>
+  </div>
+</div>
+
+<script>
+const CONFIG = {
+  historicoCSV: "https://docs.google.com/spreadsheets/d/1I9-RayPzVj5HQTASpzW04S8b8wEyG0_OKS27n6BA7GU/gviz/tq?tqx=out:csv&sheet=Hist%C3%B3rico",
+  autosCSV: "https://docs.google.com/spreadsheets/d/1I9-RayPzVj5HQTASpzW04S8b8wEyG0_OKS27n6BA7GU/gviz/tq?tqx=out:csv&sheet=Autos"
+};
+
+const FALLBACK_HISTORICO = `ID_Ronda,Marca,Modelo,Patente,Fecha_Compra,Fecha_Venta,Gasto_Compra,Gasto_Plataforma,Gasto_Arreglos,Gasto_Seguro,Gasto_Transferencia,Gasto_Lavado,Monto_Publicado,Monto_Venta,ID_Auto,Estado,Monto _Inversión,Utilidad_Bruta,Utilidad_Fondo,Utilidad_Sellcar,Clave
+R1,VW,Amarok,PW3030,2026/01/01,2026/03/01,"$15.000.000","$70.000",-,"$60.000","$120.000","$50.000","$23.000.000","$22.000.000",A1,Vendido,"$15.300.000","$6.700.000","$2.680.000","$4.020.000",R1-1
+R1,Toyota,Yaris,WX3045,2026/03/01,2026/04/01,"$20.000.000","$70.000",-,"$60.000","$120.000","$50.000","$23.500.000","$22.000.000",A2,Vendido,"$20.300.000","$1.700.000","$680.000","$1.020.000",R1-2
+R1,Ferrari,Rojo,AA6750,2026/07/01,,"$5.000.000","$70.000",-,"$60.000","$120.000","$50.000","$6.500.000",,A3,En plazo,"$5.300.000","($5.300.000)","($2.120.000)","($3.180.000)",R1-3`;
+
+const FALLBACK_AUTOS = `ID_Ronda,Aportante,Monto_Aporte,Pct_Participacion,ID_Vehiculo,Marca,Modelo,Estado,Fecha_Compra,Fecha_Venta,Inversion_Asignada,Venta_Asignada,Utilidad_Bruta_Asignada,Utilidad_Fondo_Asignada,ROI
+R1,Fela,"$14.300.000","31,8%",A1,VW,Amarok,Vendido,2026/01/01,2026/03/01,"$4.862.000","$6.991.111","$2.129.111","$851.644","17,5%"
+R1,Fela,"$14.300.000","31,8%",A2,Toyota,Yaris,Vendido,2026/03/01,2026/04/01,"$6.450.889","$6.991.111","$540.222","$216.089","3,3%"
+R1,Fela,"$14.300.000","31,8%",A3,Ferrari,Rojo,En plazo,2026/07/01,,"$1.684.222",-,"($1.684.222)","($673.689)","-40,0%"
+R1,Pelao,"$2.100.000","4,7%",A1,VW,Amarok,Vendido,2026/01/01,2026/03/01,"$714.000","$1.026.667","$312.667","$125.067","17,5%"
+R1,Pelao,"$2.100.000","4,7%",A2,Toyota,Yaris,Vendido,2026/03/01,2026/04/01,"$947.333","$1.026.667","$79.333","$31.733","3,3%"
+R1,Pelao,"$2.100.000","4,7%",A3,Ferrari,Rojo,En plazo,2026/07/01,,"$247.333",-,"($247.333)","($98.933)","-40,0%"
+R1,Valdi,"$14.300.000","31,8%",A1,VW,Amarok,Vendido,2026/01/01,2026/03/01,"$4.862.000","$6.991.111","$2.129.111","$851.644","17,5%"
+R1,Valdi,"$14.300.000","31,8%",A2,Toyota,Yaris,Vendido,2026/03/01,2026/04/01,"$6.450.889","$6.991.111","$540.222","$216.089","3,3%"
+R1,Valdi,"$14.300.000","31,8%",A3,Ferrari,Rojo,En plazo,2026/07/01,,"$1.684.222",-,"($1.684.222)","($673.689)","-40,0%"
+R1,Jose,"$14.300.000","31,8%",A1,VW,Amarok,Vendido,2026/01/01,2026/03/01,"$4.862.000","$6.991.111","$2.129.111","$851.644","17,5%"
+R1,Jose,"$14.300.000","31,8%",A2,Toyota,Yaris,Vendido,2026/03/01,2026/04/01,"$6.450.889","$6.991.111","$540.222","$216.089","3,3%"
+R1,Jose,"$14.300.000","31,8%",A3,Ferrari,Rojo,En plazo,2026/07/01,,"$1.684.222",-,"($1.684.222)","($673.689)","-40,0%"`;
+
+function parseCSV(text){
+  const rows=[]; let i=0, field='', row=[], inQuotes=false;
+  const pushField=()=>{row.push(field);field='';};
+  const pushRow=()=>{pushField();rows.push(row);row=[];};
+  while(i<text.length){
+    const c=text[i];
+    if(inQuotes){
+      if(c==='"'){ if(text[i+1]==='"'){field+='"';i+=2;continue;} inQuotes=false;i++;continue; }
+      field+=c;i++;continue;
+    } else {
+      if(c==='"'){inQuotes=true;i++;continue;}
+      if(c===','){pushField();i++;continue;}
+      if(c==='\r'){i++;continue;}
+      if(c==='\n'){pushRow();i++;continue;}
+      field+=c;i++;continue;
+    }
+  }
+  if(field.length||row.length){pushRow();}
+  if(rows.length && rows[rows.length-1].every(v=>v==='')) rows.pop();
+  const headers=rows[0].map(h=>h.trim());
+  return rows.slice(1).filter(r=>r.some(v=>v!=='')).map(r=>{
+    const obj={}; headers.forEach((h,idx)=>obj[h]=(r[idx]!==undefined?r[idx].trim():'')); return obj;
+  });
+}
+function get(row,...keys){ for(const k of keys){ if(row[k]!==undefined) return row[k]; } return ''; }
+function toNumber(v){
+  if(v===undefined||v===null) return 0;
+  let s=String(v).trim();
+  if(s===''||s==='-') return 0;
+  let neg=false;
+  if(s[0]==='(' && s[s.length-1]===')'){ neg=true; s=s.slice(1,-1).trim(); }
+  s=s.replace(/\$/g,'').replace(/%/g,'').trim();
+  if(s===''||s==='-') return 0;
+  s=s.replace(/\./g,'').replace(/,/g,'.');
+  const n=parseFloat(s);
+  if(isNaN(n)) return 0;
+  return neg?-n:n;
+}
+/* Formato chileno: punto para miles, coma para decimales */
+function clp(n){ const neg=n<0; return (neg?'-':'')+'$'+Math.round(Math.abs(n)).toLocaleString('es-CL'); }
+function pct(n,d=1){ return n.toLocaleString('es-CL',{minimumFractionDigits:d,maximumFractionDigits:d})+'%'; }
+
+async function fetchCSV(url, fallback){
+  if(url && url.trim()){
+    try{ const res=await fetch(url,{cache:'no-store'}); if(!res.ok) throw new Error('bad'); return parseCSV(await res.text()); }
+    catch(e){ console.warn('CSV fetch failed, using fallback:',e); return parseCSV(fallback); }
+  }
+  return parseCSV(fallback);
+}
+
+function semaforo(row){
+  if(row['Estado']==='Vendido') return {hex:'#9AA1AC', label:'Vendido', days:'Vendido', rank:3};
+  const start=new Date((row['Fecha_Compra']||'').replace(/\//g,'-'));
+  const days=Math.floor((new Date()-start)/86400000);
+  if(days<=30) return {hex:'#16C784', label:days+' días en stock', days:days+' días', rank:2};
+  if(days<=60) return {hex:'#F5A524', label:days+' días — riesgo de estancamiento', days:days+' días', rank:1};
+  return {hex:'#F0453A', label:days+' días — estancado', days:days+' días', rank:0};
+}
+
+let DATA={historico:[],autos:[]};
+let currentView='investor';
+
+function showView(view){
+  currentView=view;
+  document.getElementById('viewInvestor').classList.toggle('hidden', view!=='investor');
+  document.getElementById('viewSellcar').classList.toggle('hidden', view!=='sellcar');
+  document.getElementById('tabInvestorBtn').className = 'flex-1 py-2 rounded-lg font-display text-sm font-semibold transition ' + (view==='investor' ? 'bg-[#00FF87] text-black' : 'text-[#7C828D]');
+  document.getElementById('tabSellcarBtn').className = 'flex-1 py-2 rounded-lg font-display text-sm font-semibold transition ' + (view==='sellcar' ? 'bg-[#0057FF] text-white' : 'text-[#7C828D]');
+  if(view==='investor') renderInvestor(); else renderSellcar();
+}
+
+function renderCapitalCards(aportado, invertido){
+  const saldo = aportado - invertido;
+  document.getElementById('investorCapitalRow').innerHTML = `
+    <div class="bg-[#101319] border border-[#1E232B] rounded-xl p-3 text-center">
+      <p class="text-[#7C828D] text-[10px] uppercase">Aportado</p>
+      <p class="text-white text-sm font-display font-bold mt-1">${clp(aportado)}</p>
+    </div>
+    <div class="bg-[#101319] border border-[#1E232B] rounded-xl p-3 text-center">
+      <p class="text-[#7C828D] text-[10px] uppercase">Invertido</p>
+      <p class="text-white text-sm font-display font-bold mt-1">${clp(invertido)}</p>
+    </div>
+    <div class="bg-[#101319] border border-[#1E232B] rounded-xl p-3 text-center">
+      <p class="text-[#7C828D] text-[10px] uppercase">Saldo</p>
+      <p class="text-sm font-display font-bold mt-1" style="color:${saldo>=0?'#00FF87':'#F0453A'}">${clp(saldo)}</p>
+    </div>`;
+}
+
+function populateInvestorSelect(){
+  const names=[...new Set(DATA.autos.map(r=>r['Aportante']).filter(n=>n))].sort();
+  const sel=document.getElementById('investorSelect');
+  sel.innerHTML = `<option value="__all__">Fondo (todos)</option>` + names.map(n=>`<option value="${n}">${n}</option>`).join('');
+}
+
+function renderInvestor(){
+  const name=document.getElementById('investorSelect').value || '__all__';
+  const totalEl=document.getElementById('investorTotal');
+  const roiEl=document.getElementById('investorRoi');
+  const listEl=document.getElementById('investorList');
+
+  if(name==='__all__'){
+    const sold = DATA.historico.filter(r=>r['Estado']==='Vendido');
+    const utilidad = sold.reduce((s,r)=>s+toNumber(r['Utilidad_Fondo']),0);
+    const inversionVendida = sold.reduce((s,r)=>s+toNumber(get(r,'Monto _Inversión','Monto_Inversión')),0);
+    totalEl.textContent = clp(utilidad);
+    roiEl.textContent = inversionVendida>0 ? pct(utilidad/inversionVendida*100)+' sobre capital vendido' : '';
+
+    const seenCap=new Set(); let aportado=0;
+    DATA.autos.forEach(r=>{ const k=r['ID_Ronda']+'|'+r['Aportante']; if(!seenCap.has(k)){seenCap.add(k); aportado+=toNumber(r['Monto_Aporte']);} });
+    const invertido = DATA.autos.reduce((s,r)=>s+toNumber(r['Inversion_Asignada']),0);
+    renderCapitalCards(aportado, invertido);
+
+    listEl.innerHTML = DATA.historico.map(r=>{
+      const s=semaforo(r);
+      const compra=toNumber(r['Gasto_Compra']), venta=toNumber(r['Monto_Venta']), utilidadCar=toNumber(r['Utilidad_Fondo']);
+      const comision=toNumber(get(r,'Utilidad_Celcar','Utilidad_Sellcar'));
+      return investorCard(r['Marca']+' '+r['Modelo'], r['ID_Ronda'], compra, venta, utilidadCar, s, r['Estado']==='Vendido', comision);
+    }).join('');
+  } else {
+    const rows=DATA.autos.filter(r=>r['Aportante']===name);
+    const soldRows=rows.filter(r=>r['Estado']==='Vendido');
+    const utilidad=soldRows.reduce((s,r)=>s+toNumber(r['Utilidad_Fondo_Asignada']),0);
+    const inversionVendida=soldRows.reduce((s,r)=>s+toNumber(r['Inversion_Asignada']),0);
+    totalEl.textContent = clp(utilidad);
+    roiEl.textContent = inversionVendida>0 ? pct(utilidad/inversionVendida*100)+' sobre su capital vendido' : '';
+
+    const seenCap=new Set(); let aportado=0;
+    rows.forEach(r=>{ const k=r['ID_Ronda']+'|'+r['Aportante']; if(!seenCap.has(k)){seenCap.add(k); aportado+=toNumber(r['Monto_Aporte']);} });
+    const invertido = rows.reduce((s,r)=>s+toNumber(r['Inversion_Asignada']),0);
+    renderCapitalCards(aportado, invertido);
+
+    listEl.innerHTML = rows.map(r=>{
+      const s=semaforo(r);
+      const compra=toNumber(r['Inversion_Asignada']), venta=toNumber(r['Venta_Asignada']), utilidadCar=toNumber(r['Utilidad_Fondo_Asignada']);
+      const comision=toNumber(r['Utilidad_Bruta_Asignada'])-utilidadCar;
+      return investorCard(r['Marca']+' '+r['Modelo'], r['ID_Ronda'], compra, venta, utilidadCar, s, r['Estado']==='Vendido', comision);
+    }).join('');
+  }
+}
+
+function investorCard(name, ronda, compra, venta, utilidad, s, vendido, comision){
+  let rentBadge, ventaTxt, utilidadTxt, utilidadColor, badgeColor;
+  if(vendido){
+    const rentabilidad = compra>0 ? (utilidad/compra*100) : 0;
+    rentBadge = (rentabilidad>=0?'+':'')+pct(rentabilidad);
+    ventaTxt = clp(venta);
+    utilidadTxt = clp(utilidad);
+    utilidadColor = '#00FF87';
+    badgeColor = '#00FF87';
+  } else {
+    rentBadge = 'En proceso';
+    ventaTxt = '-';
+    utilidadTxt = '-';
+    utilidadColor = '#FFFFFF';
+    badgeColor = '#F5A524';
+  }
+  return `
+    <div class="bg-[#101319] border border-[#1E232B] rounded-2xl p-4">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full" style="background:${s.hex}"></span>
+          <span class="text-white font-display font-semibold">${name}</span>
+        </div>
+        <div class="text-right">
+          <p class="font-display font-bold text-sm" style="color:${badgeColor}">${rentBadge}</p>
+          <p class="text-[#7C828D] text-[10px] font-display">${ronda}</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <div><p class="text-[#7C828D] text-[10px] uppercase">Compra</p><p class="text-white text-xs font-medium mt-1">${clp(compra)}</p></div>
+        <div><p class="text-[#7C828D] text-[10px] uppercase">Venta</p><p class="text-white text-xs font-medium mt-1">${ventaTxt}</p></div>
+        <div><p class="text-[#7C828D] text-[10px] uppercase">Utilidad</p><p class="text-xs font-bold mt-1" style="color:${utilidadColor}">${utilidadTxt}</p></div>
+      </div>
+      <p class="text-[#7C828D] text-[11px] mt-3">${s.label}</p>
+    </div>`;
+}
+
+function toggleGastos(idx){
+  const panel=document.getElementById('gastosDetail'+idx);
+  const arrow=document.getElementById('gastosArrow'+idx);
+  if(!panel) return;
+  panel.classList.toggle('hidden');
+  if(arrow) arrow.textContent = panel.classList.contains('hidden') ? '▸' : '▾';
+}
+
+function renderSellcar(){
+  const rows = DATA.historico.map(r=>({row:r, s:semaforo(r)})).sort((a,b)=>a.s.rank-b.s.rank);
+
+  const counts = {0:0,1:0,2:0,3:0};
+  rows.forEach(({s})=>{ counts[s.rank]++; });
+  const order=[0,1,2,3];
+  document.getElementById('sellcarSemaforo').innerHTML = order.map(rank=>{
+    const hex = rank===0?'#F0453A':rank===1?'#F5A524':rank===2?'#16C784':'#9AA1AC';
+    return `<div class="flex flex-col items-center gap-1"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background:${hex}"></span><span class="font-display font-bold text-2xl" style="color:${hex}">${counts[rank]}</span></div>`;
+  }).join('');
+
+  const listEl=document.getElementById('sellcarList');
+  listEl.innerHTML = rows.map(({row:r,s},idx)=>{
+    const patente = get(r,'Patente') || '-';
+    const monto = toNumber(get(r,'Monto _Inversión','Monto_Inversión'));
+    const publicado = toNumber(r['Monto_Publicado']);
+    const vendido = r['Estado']==='Vendido';
+    const compra = toNumber(r['Gasto_Compra']);
+    const gPlataforma=toNumber(r['Gasto_Plataforma']), gArreglos=toNumber(r['Gasto_Arreglos']), gSeguro=toNumber(r['Gasto_Seguro']), gTransferencia=toNumber(r['Gasto_Transferencia']), gLavado=toNumber(r['Gasto_Lavado']);
+    const gastos = gPlataforma+gArreglos+gSeguro+gTransferencia+gLavado;
+    const venta = toNumber(r['Monto_Venta']);
+    const margen = toNumber(r['Utilidad_Bruta']);
+    const rentabilidad = monto>0 ? (margen/monto*100) : 0;
+    return `
+      <div class="bg-white border border-[#E3E7EC] rounded-xl px-4 py-3">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background:${s.hex}"></span>
+            <span class="text-[#0B0E14] text-sm font-medium truncate">${r['Marca']} ${r['Modelo']}</span>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-[#667085] text-xs font-mono">${patente}</p>
+            <p class="text-[11px] font-medium mt-0.5" style="color:${s.hex}">${s.days}</p>
+          </div>
+        </div>
+        ${vendido?`
+        <div class="grid grid-cols-5 gap-1 text-center pt-1">
+          <div><p class="text-[#667085] text-[9px] uppercase">Compra</p><p class="text-[#F0453A] text-[11px] font-medium mt-0.5">${clp(compra)}</p></div>
+          <div style="cursor:pointer" onclick="toggleGastos(${idx})"><p class="text-[#667085] text-[9px] uppercase">Gastos <span id="gastosArrow${idx}">▸</span></p><p class="text-[#F0453A] text-[11px] font-medium mt-0.5">${clp(gastos)}</p></div>
+          <div><p class="text-[#667085] text-[9px] uppercase">Venta</p><p class="text-[#0B0E14] text-[11px] font-medium mt-0.5">${clp(venta)}</p></div>
+          <div><p class="text-[#667085] text-[9px] uppercase">Margen</p><p class="text-[#0B0E14] text-[11px] font-medium mt-0.5">${clp(margen)}</p></div>
+          <div><p class="text-[#667085] text-[9px] uppercase">Rent.</p><p class="text-[#0057FF] text-[11px] font-bold mt-0.5">${pct(rentabilidad)}</p></div>
+        </div>
+        <div id="gastosDetail${idx}" class="hidden grid grid-cols-5 gap-1 text-center pt-2 mt-2" style="border-top:0.5px solid #E3E7EC">
+          <div><p class="text-[#667085] text-[8px] uppercase">Plataf.</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gPlataforma>0?clp(gPlataforma):'-'}</p></div>
+          <div><p class="text-[#667085] text-[8px] uppercase">Arreglos</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gArreglos>0?clp(gArreglos):'-'}</p></div>
+          <div><p class="text-[#667085] text-[8px] uppercase">Seguro</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gSeguro>0?clp(gSeguro):'-'}</p></div>
+          <div><p class="text-[#667085] text-[8px] uppercase">Transf.</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gTransferencia>0?clp(gTransferencia):'-'}</p></div>
+          <div><p class="text-[#667085] text-[8px] uppercase">Lavado</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gLavado>0?clp(gLavado):'-'}</p></div>
+        </div>`:`
+        <div class="grid grid-cols-2 gap-2 text-center pt-1">
+          <div><p class="text-[#667085] text-[10px] uppercase">Compra</p><p class="text-[#0B0E14] text-xs font-medium mt-0.5">${clp(monto)}</p></div>
+          <div><p class="text-[#667085] text-[10px] uppercase">Publicado</p><p class="text-[#0B0E14] text-xs font-medium mt-0.5">${publicado>0?clp(publicado):'-'}</p></div>
+        </div>`}
+      </div>`;
+  }).join('');
+}
+
+async function loadData(){
+  const [historico, autos] = await Promise.all([
+    fetchCSV(CONFIG.historicoCSV, FALLBACK_HISTORICO),
+    fetchCSV(CONFIG.autosCSV, FALLBACK_AUTOS)
+  ]);
+  DATA={
+    historico: historico.filter(r=>r['ID_Ronda'] && r['ID_Ronda']!=='#N/A'),
+    autos: autos.filter(r=>r['Aportante'] && r['Aportante']!=='#N/A' && r['ID_Ronda']!=='#N/A')
+  };
+  populateInvestorSelect();
+  showView(currentView);
+}
+loadData();
+setInterval(loadData, 60000);
+</script>
+</body>
+</html>
