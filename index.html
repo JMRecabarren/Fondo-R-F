@@ -278,6 +278,9 @@ function renderInvestor(){
   const roiEl=document.getElementById('investorRoi');
   const listEl=document.getElementById('investorList');
 
+  const historicoMap={};
+  DATA.historico.forEach(r=>{ historicoMap[r['ID_Ronda']+'|'+get(r,'ID_Vehiculo','ID_Auto')] = r; });
+
   if(name==='__all__'){
     const sold = DATA.historico.filter(r=>r['Estado']==='Vendido');
     const utilidad = sold.reduce((s,r)=>s+toNumber(r['Utilidad_Fondo']),0);
@@ -290,11 +293,12 @@ function renderInvestor(){
     const invertido = DATA.autos.reduce((s,r)=>s+toNumber(r['Inversion_Asignada']),0);
     renderCapitalCards(aportado, invertido);
 
-    listEl.innerHTML = DATA.historico.map(r=>{
+    listEl.innerHTML = DATA.historico.map((r,idx)=>{
       const s=semaforo(r);
       const compra=toNumber(r['Gasto_Compra']), venta=toNumber(r['Monto_Venta']), utilidadCar=toNumber(r['Utilidad_Fondo']);
-      const comision=toNumber(get(r,'Utilidad_Celcar','Utilidad_Sellcar'));
-      return investorCard(r['Marca']+' '+r['Modelo'], r['ID_Ronda'], compra, venta, utilidadCar, s, r['Estado']==='Vendido', comision);
+      const gItems={p:toNumber(r['Gasto_Plataforma']),a:toNumber(r['Gasto_Arreglos']),s:toNumber(r['Gasto_Seguro']),t:toNumber(r['Gasto_Transferencia']),l:toNumber(r['Gasto_Lavado'])};
+      const gastoTotal=gItems.p+gItems.a+gItems.s+gItems.t+gItems.l;
+      return investorCard(r['Marca']+' '+r['Modelo'], r['ID_Ronda'], compra, venta, utilidadCar, s, r['Estado']==='Vendido', gastoTotal, gItems, idx);
     }).join('');
   } else {
     const rows=DATA.autos.filter(r=>r['Aportante']===name);
@@ -309,16 +313,25 @@ function renderInvestor(){
     const invertido = rows.reduce((s,r)=>s+toNumber(r['Inversion_Asignada']),0);
     renderCapitalCards(aportado, invertido);
 
-    listEl.innerHTML = rows.map(r=>{
+    listEl.innerHTML = rows.map((r,idx)=>{
       const s=semaforo(r);
       const compra=toNumber(r['Inversion_Asignada']), venta=toNumber(r['Venta_Asignada']), utilidadCar=toNumber(r['Utilidad_Fondo_Asignada']);
-      const comision=toNumber(r['Utilidad_Bruta_Asignada'])-utilidadCar;
-      return investorCard(r['Marca']+' '+r['Modelo'], r['ID_Ronda'], compra, venta, utilidadCar, s, r['Estado']==='Vendido', comision);
+      const hRow = historicoMap[r['ID_Ronda']+'|'+r['ID_Vehiculo']];
+      const pctPart = toNumber(r['Pct_Participacion'])/100;
+      const gItems = hRow ? {
+        p:toNumber(hRow['Gasto_Plataforma'])*pctPart,
+        a:toNumber(hRow['Gasto_Arreglos'])*pctPart,
+        s:toNumber(hRow['Gasto_Seguro'])*pctPart,
+        t:toNumber(hRow['Gasto_Transferencia'])*pctPart,
+        l:toNumber(hRow['Gasto_Lavado'])*pctPart
+      } : {p:0,a:0,s:0,t:0,l:0};
+      const gastoTotal=gItems.p+gItems.a+gItems.s+gItems.t+gItems.l;
+      return investorCard(r['Marca']+' '+r['Modelo'], r['ID_Ronda'], compra, venta, utilidadCar, s, r['Estado']==='Vendido', gastoTotal, gItems, idx);
     }).join('');
   }
 }
 
-function investorCard(name, ronda, compra, venta, utilidad, s, vendido, comision){
+function investorCard(name, ronda, compra, venta, utilidad, s, vendido, gastoTotal, gItems, idx){
   let rentBadge, ventaTxt, utilidadTxt, utilidadColor, badgeColor;
   if(vendido){
     const rentabilidad = compra>0 ? (utilidad/compra*100) : 0;
@@ -346,13 +359,29 @@ function investorCard(name, ronda, compra, venta, utilidad, s, vendido, comision
           <p class="text-[#7C828D] text-[10px] font-display">${ronda}</p>
         </div>
       </div>
-      <div class="grid grid-cols-3 gap-2 text-center">
+      <div class="grid grid-cols-4 gap-2 text-center">
         <div><p class="text-[#7C828D] text-[10px] uppercase">Compra</p><p class="text-white text-xs font-medium mt-1">${clp(compra)}</p></div>
+        <div style="cursor:pointer" onclick="toggleInvGastos(${idx})"><p class="text-[#7C828D] text-[10px] uppercase">Gasto <span id="invGastosArrow${idx}">▸</span></p><p class="text-[#F0453A] text-xs font-medium mt-1">${clp(gastoTotal)}</p></div>
         <div><p class="text-[#7C828D] text-[10px] uppercase">Venta</p><p class="text-white text-xs font-medium mt-1">${ventaTxt}</p></div>
         <div><p class="text-[#7C828D] text-[10px] uppercase">Utilidad</p><p class="text-xs font-bold mt-1" style="color:${utilidadColor}">${utilidadTxt}</p></div>
       </div>
+      <div id="invGastosDetail${idx}" class="hidden grid grid-cols-5 gap-1 text-center pt-2 mt-2 border-t border-[#1E232B]">
+        <div><p class="text-[#7C828D] text-[8px] uppercase">Plataf.</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gItems.p>0?clp(gItems.p):'-'}</p></div>
+        <div><p class="text-[#7C828D] text-[8px] uppercase">Arreglos</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gItems.a>0?clp(gItems.a):'-'}</p></div>
+        <div><p class="text-[#7C828D] text-[8px] uppercase">Seguro</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gItems.s>0?clp(gItems.s):'-'}</p></div>
+        <div><p class="text-[#7C828D] text-[8px] uppercase">Transf.</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gItems.t>0?clp(gItems.t):'-'}</p></div>
+        <div><p class="text-[#7C828D] text-[8px] uppercase">Lavado</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gItems.l>0?clp(gItems.l):'-'}</p></div>
+      </div>
       <p class="text-[#7C828D] text-[11px] mt-3">${s.label}</p>
     </div>`;
+}
+
+function toggleInvGastos(idx){
+  const panel=document.getElementById('invGastosDetail'+idx);
+  const arrow=document.getElementById('invGastosArrow'+idx);
+  if(!panel) return;
+  panel.classList.toggle('hidden');
+  if(arrow) arrow.textContent = panel.classList.contains('hidden') ? '▸' : '▾';
 }
 
 function toggleGastos(idx){
