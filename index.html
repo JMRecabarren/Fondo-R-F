@@ -104,6 +104,7 @@
   .text-\[\#667085\]{color:#667085;}
   .text-\[\#7C828D\]{color:#7C828D;}
   .text-\[\#F0453A\]{color:#F0453A;}
+  .text-\[\#FF4F00\]{color:#FF4F00;}
   .border-\[\#1E232B\]{border-color:#1E232B;}
   .border-\[\#E3E7EC\]{border-color:#E3E7EC;}
   .text-\[9px\]{font-size:9px;}
@@ -156,7 +157,8 @@
 <script>
 const CONFIG = {
   historicoCSV: "https://docs.google.com/spreadsheets/d/1I9-RayPzVj5HQTASpzW04S8b8wEyG0_OKS27n6BA7GU/gviz/tq?tqx=out:csv&sheet=Hist%C3%B3rico",
-  autosCSV: "https://docs.google.com/spreadsheets/d/1I9-RayPzVj5HQTASpzW04S8b8wEyG0_OKS27n6BA7GU/gviz/tq?tqx=out:csv&sheet=Autos"
+  autosCSV: "https://docs.google.com/spreadsheets/d/1I9-RayPzVj5HQTASpzW04S8b8wEyG0_OKS27n6BA7GU/gviz/tq?tqx=out:csv&sheet=Autos",
+  libroCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vT94Js04QCMYGbJuc2k4fFIwC8hAPG9q-oV_Sxy3VJ0wItY0FerlcB3cfeNwOLci6LP6oFzUeybtPX3/pub?gid=1992396765&single=true&output=csv"
 };
 
 const FALLBACK_HISTORICO = `ID_Ronda,Marca,Modelo,Patente,Fecha_Compra,Fecha_Venta,Gasto_Compra,Gasto_Plataforma,Gasto_Arreglos,Gasto_Seguro,Gasto_Transferencia,Gasto_Lavado,Monto_Publicado,Monto_Venta,ID_Auto,Estado,Monto _Inversión,Utilidad_Bruta,Utilidad_Fondo,Utilidad_Sellcar,Clave
@@ -177,6 +179,12 @@ R1,Valdi,"$14.300.000","31,8%",A3,Ferrari,Rojo,En plazo,2026/07/01,,"$1.684.222"
 R1,Jose,"$14.300.000","31,8%",A1,VW,Amarok,Vendido,2026/01/01,2026/03/01,"$4.862.000","$6.991.111","$2.129.111","$851.644","17,5%"
 R1,Jose,"$14.300.000","31,8%",A2,Toyota,Yaris,Vendido,2026/03/01,2026/04/01,"$6.450.889","$6.991.111","$540.222","$216.089","3,3%"
 R1,Jose,"$14.300.000","31,8%",A3,Ferrari,Rojo,En plazo,2026/07/01,,"$1.684.222",-,"($1.684.222)","($673.689)","-40,0%"`;
+
+const FALLBACK_LIBRO = `ID_Ronda,Aportante,Fecha inicio,Monto_Aporte
+R1,Fela,01-01-2026,"$14.300.000"
+R1,Pelao,01-01-2026,"$2.100.000"
+R1,Valdi,01-01-2026,"$14.300.000"
+R1,Jose,01-01-2026,"$14.300.000"`;
 
 function parseCSV(text){
   const rows=[]; let i=0, field='', row=[], inQuotes=false;
@@ -237,7 +245,7 @@ function semaforo(row){
   return {hex:'#F0453A', label:days+' días — estancado', days:days+' días', rank:0};
 }
 
-let DATA={historico:[],autos:[]};
+let DATA={historico:[],autos:[],libro:[]};
 let currentView='investor';
 
 function showView(view){
@@ -249,11 +257,19 @@ function showView(view){
   if(view==='investor') renderInvestor(); else renderSellcar();
 }
 
-function renderCapitalCards(aportado, invertido){
+function renderCapitalCards(aportado, invertido, breakdown){
   const saldo = aportado - invertido;
+  const rows = breakdown||[];
+  const breakdownHtml = rows.length ? rows.map(b=>`
+    <div class="flex items-center justify-between" style="padding:4px 0">
+      <span class="text-[#FF4F00] font-mono" style="font-size:10px;width:28px">${b.ronda}</span>
+      <span class="text-[#7C828D]" style="font-size:11px;flex:1;text-align:center">${b.fecha||'—'}</span>
+      <span class="text-white font-mono" style="font-size:11px;font-weight:500">${clp(b.monto)}</span>
+    </div>`).join('') : `<p class="text-[#7C828D]" style="font-size:11px;text-align:center">Sin desglose disponible</p>`;
+
   document.getElementById('investorCapitalRow').innerHTML = `
-    <div class="bg-[#101319] border border-[#1E232B] rounded-xl p-3 text-center">
-      <p class="text-[#7C828D] text-[10px] uppercase">Aportado</p>
+    <div class="bg-[#101319] border border-[#1E232B] rounded-xl p-3 text-center" style="cursor:pointer" onclick="toggleAportado()">
+      <p class="text-[#7C828D] text-[10px] uppercase">Aportado <span id="aportadoArrow">▸</span></p>
       <p class="text-white text-sm font-display font-bold mt-1">${clp(aportado)}</p>
     </div>
     <div class="bg-[#101319] border border-[#1E232B] rounded-xl p-3 text-center">
@@ -263,7 +279,18 @@ function renderCapitalCards(aportado, invertido){
     <div class="bg-[#101319] border border-[#1E232B] rounded-xl p-3 text-center">
       <p class="text-[#7C828D] text-[10px] uppercase">Saldo</p>
       <p class="text-sm font-display font-bold mt-1" style="color:${saldo>=0?'#00FF87':'#F0453A'}">${clp(saldo)}</p>
+    </div>
+    <div id="aportadoDetail" class="hidden bg-[#101319] border border-[#1E232B] rounded-xl p-3" style="grid-column:1/-1">
+      ${breakdownHtml}
     </div>`;
+}
+
+function toggleAportado(){
+  const panel=document.getElementById('aportadoDetail');
+  const arrow=document.getElementById('aportadoArrow');
+  if(!panel) return;
+  panel.classList.toggle('hidden');
+  if(arrow) arrow.textContent = panel.classList.contains('hidden') ? '▸' : '▾';
 }
 
 function populateInvestorSelect(){
@@ -291,7 +318,8 @@ function renderInvestor(){
     const seenCap=new Set(); let aportado=0;
     DATA.autos.forEach(r=>{ const k=r['ID_Ronda']+'|'+r['Aportante']; if(!seenCap.has(k)){seenCap.add(k); aportado+=toNumber(r['Monto_Aporte']);} });
     const invertido = DATA.autos.reduce((s,r)=>s+toNumber(r['Inversion_Asignada']),0);
-    renderCapitalCards(aportado, invertido);
+    const breakdown = DATA.libro.map(r=>({ronda:r['ID_Ronda'], fecha:r['Fecha inicio']||get(r,'Fecha_inicio'), monto:toNumber(r['Monto_Aporte'])}));
+    renderCapitalCards(aportado, invertido, breakdown);
 
     listEl.innerHTML = DATA.historico.map((r,idx)=>{
       const s=semaforo(r);
@@ -311,7 +339,8 @@ function renderInvestor(){
     const seenCap=new Set(); let aportado=0;
     rows.forEach(r=>{ const k=r['ID_Ronda']+'|'+r['Aportante']; if(!seenCap.has(k)){seenCap.add(k); aportado+=toNumber(r['Monto_Aporte']);} });
     const invertido = rows.reduce((s,r)=>s+toNumber(r['Inversion_Asignada']),0);
-    renderCapitalCards(aportado, invertido);
+    const breakdown = DATA.libro.filter(r=>r['Aportante']===name).map(r=>({ronda:r['ID_Ronda'], fecha:r['Fecha inicio']||get(r,'Fecha_inicio'), monto:toNumber(r['Monto_Aporte'])}));
+    renderCapitalCards(aportado, invertido, breakdown);
 
     listEl.innerHTML = rows.map((r,idx)=>{
       const s=semaforo(r);
@@ -452,13 +481,15 @@ function renderSellcar(){
 }
 
 async function loadData(){
-  const [historico, autos] = await Promise.all([
+  const [historico, autos, libro] = await Promise.all([
     fetchCSV(CONFIG.historicoCSV, FALLBACK_HISTORICO),
-    fetchCSV(CONFIG.autosCSV, FALLBACK_AUTOS)
+    fetchCSV(CONFIG.autosCSV, FALLBACK_AUTOS),
+    fetchCSV(CONFIG.libroCSV, FALLBACK_LIBRO)
   ]);
   DATA={
     historico: historico.filter(r=>r['ID_Ronda'] && r['ID_Ronda']!=='#N/A'),
-    autos: autos.filter(r=>r['Aportante'] && r['Aportante']!=='#N/A' && r['ID_Ronda']!=='#N/A')
+    autos: autos.filter(r=>r['Aportante'] && r['Aportante']!=='#N/A' && r['ID_Ronda']!=='#N/A'),
+    libro: libro.filter(r=>r['Aportante'] && r['Aportante']!=='#N/A' && r['ID_Ronda']!=='#N/A')
   };
   populateInvestorSelect();
   showView(currentView);
