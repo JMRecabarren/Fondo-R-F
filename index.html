@@ -405,18 +405,19 @@ function renderSellcar(){
           <div><p class="text-[#667085] text-[9px] uppercase">Venta</p><p class="text-[#0B0E14] text-[11px] font-medium mt-0.5">${clp(venta)}</p></div>
           <div><p class="text-[#667085] text-[9px] uppercase">Margen</p><p class="text-[#0B0E14] text-[11px] font-medium mt-0.5">${clp(margen)}</p></div>
           <div><p class="text-[#667085] text-[9px] uppercase">Rent.</p><p class="text-[#0057FF] text-[11px] font-bold mt-0.5">${pct(rentabilidad)}</p></div>
-        </div>
+        </div>`:`
+        <div class="grid grid-cols-3 gap-2 text-center pt-1">
+          <div><p class="text-[#667085] text-[10px] uppercase">Compra</p><p class="text-[#0B0E14] text-xs font-medium mt-0.5">${clp(monto)}</p></div>
+          <div style="cursor:pointer" onclick="toggleGastos(${idx})"><p class="text-[#667085] text-[10px] uppercase">Gastos <span id="gastosArrow${idx}">▸</span></p><p class="text-[#F0453A] text-xs font-medium mt-0.5">${clp(gastos)}</p></div>
+          <div><p class="text-[#667085] text-[10px] uppercase">Publicado</p><p class="text-[#0B0E14] text-xs font-medium mt-0.5">${publicado>0?clp(publicado):'-'}</p></div>
+        </div>`}
         <div id="gastosDetail${idx}" class="hidden grid grid-cols-5 gap-1 text-center pt-2 mt-2" style="border-top:0.5px solid #E3E7EC">
           <div><p class="text-[#667085] text-[8px] uppercase">Plataf.</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gPlataforma>0?clp(gPlataforma):'-'}</p></div>
           <div><p class="text-[#667085] text-[8px] uppercase">Arreglos</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gArreglos>0?clp(gArreglos):'-'}</p></div>
           <div><p class="text-[#667085] text-[8px] uppercase">Seguro</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gSeguro>0?clp(gSeguro):'-'}</p></div>
           <div><p class="text-[#667085] text-[8px] uppercase">Transf.</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gTransferencia>0?clp(gTransferencia):'-'}</p></div>
           <div><p class="text-[#667085] text-[8px] uppercase">Lavado</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gLavado>0?clp(gLavado):'-'}</p></div>
-        </div>`:`
-        <div class="grid grid-cols-2 gap-2 text-center pt-1">
-          <div><p class="text-[#667085] text-[10px] uppercase">Compra</p><p class="text-[#0B0E14] text-xs font-medium mt-0.5">${clp(monto)}</p></div>
-          <div><p class="text-[#667085] text-[10px] uppercase">Publicado</p><p class="text-[#0B0E14] text-xs font-medium mt-0.5">${publicado>0?clp(publicado):'-'}</p></div>
-        </div>`}
+        </div>
       </div>`;
   }).join('');
 }
