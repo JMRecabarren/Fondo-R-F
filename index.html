@@ -311,13 +311,14 @@ function renderInvestor(){
   if(name==='__all__'){
     const sold = DATA.historico.filter(r=>r['Estado']==='Vendido');
     const utilidad = sold.reduce((s,r)=>s+toNumber(r['Utilidad_Fondo']),0);
-    const inversionVendida = sold.reduce((s,r)=>s+toNumber(get(r,'Monto _Inversión','Monto_Inversión')),0);
-    totalEl.textContent = clp(utilidad);
-    roiEl.textContent = inversionVendida>0 ? pct(utilidad/inversionVendida*100)+' sobre capital vendido' : '';
 
     const seenCap=new Set(); let aportado=0;
     DATA.autos.forEach(r=>{ const k=r['ID_Ronda']+'|'+r['Aportante']; if(!seenCap.has(k)){seenCap.add(k); aportado+=toNumber(r['Monto_Aporte']);} });
     const invertido = DATA.autos.reduce((s,r)=>s+toNumber(r['Inversion_Asignada']),0);
+
+    totalEl.textContent = clp(utilidad);
+    roiEl.textContent = aportado>0 ? pct(utilidad/aportado*100)+' sobre lo aportado' : '';
+
     const breakdown = DATA.libro.map(r=>({ronda:r['ID_Ronda'], fecha:r['Fecha inicio']||get(r,'Fecha_inicio'), monto:toNumber(r['Monto_Aporte'])}));
     renderCapitalCards(aportado, invertido, breakdown);
 
@@ -332,13 +333,14 @@ function renderInvestor(){
     const rows=DATA.autos.filter(r=>r['Aportante']===name);
     const soldRows=rows.filter(r=>r['Estado']==='Vendido');
     const utilidad=soldRows.reduce((s,r)=>s+toNumber(r['Utilidad_Fondo_Asignada']),0);
-    const inversionVendida=soldRows.reduce((s,r)=>s+toNumber(r['Inversion_Asignada']),0);
-    totalEl.textContent = clp(utilidad);
-    roiEl.textContent = inversionVendida>0 ? pct(utilidad/inversionVendida*100)+' sobre su capital vendido' : '';
 
     const seenCap=new Set(); let aportado=0;
     rows.forEach(r=>{ const k=r['ID_Ronda']+'|'+r['Aportante']; if(!seenCap.has(k)){seenCap.add(k); aportado+=toNumber(r['Monto_Aporte']);} });
     const invertido = rows.reduce((s,r)=>s+toNumber(r['Inversion_Asignada']),0);
+
+    totalEl.textContent = clp(utilidad);
+    roiEl.textContent = aportado>0 ? pct(utilidad/aportado*100)+' sobre lo aportado' : '';
+
     const breakdown = DATA.libro.filter(r=>r['Aportante']===name).map(r=>({ronda:r['ID_Ronda'], fecha:r['Fecha inicio']||get(r,'Fecha_inicio'), monto:toNumber(r['Monto_Aporte'])}));
     renderCapitalCards(aportado, invertido, breakdown);
 
