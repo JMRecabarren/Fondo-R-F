@@ -77,6 +77,7 @@
   .text-sm{font-size:0.875rem;line-height:1.25rem;}
   .text-5xl{font-size:3rem;line-height:1;}
   .text-2xl{font-size:1.5rem;line-height:2rem;}
+  .text-lg{font-size:1.125rem;line-height:1.75rem;}
   .font-bold{font-weight:700;}
   .font-semibold{font-weight:600;}
   .font-medium{font-weight:500;}
@@ -131,7 +132,7 @@
   <div class="max-w-md mx-auto px-5 pt-6">
     <select id="investorSelect" onchange="renderInvestor()" class="w-full bg-[#101319] border border-[#1E232B] text-white rounded-xl px-4 py-3 mb-6 font-display text-sm"></select>
 
-    <div id="investorCapitalRow" class="grid grid-cols-3 gap-2 mb-8"></div>
+    <div id="investorCapitalRow" class="grid grid-cols-4 gap-2 mb-8"></div>
 
     <div class="text-center mb-10">
       <p class="text-[#7C828D] text-xs uppercase tracking-widest mb-2">Utilidad total ganada</p>
@@ -147,6 +148,8 @@
 <!-- ===== VISTA SELLCAR ===== -->
 <div id="viewSellcar" class="hidden min-h-screen bg-[#F5F7FA] pb-16">
   <div class="max-w-md mx-auto px-5 pt-6">
+    <div id="sellcarCaja" class="bg-white border border-[#E3E7EC] rounded-xl p-3 text-center mb-8"></div>
+
     <div id="sellcarSemaforo" class="flex items-center justify-center gap-6 mb-10"></div>
 
     <p class="text-[#667085] text-xs uppercase tracking-widest mb-3">Flota</p>
@@ -257,8 +260,9 @@ function showView(view){
   if(view==='investor') renderInvestor(); else renderSellcar();
 }
 
-function renderCapitalCards(aportado, invertido, breakdown){
-  const saldo = aportado - invertido;
+function renderCapitalCards(aportado, invertido, ventasVendidas, utilidad, breakdown){
+  const caja = aportado + ventasVendidas - invertido;
+  const patrimonio = aportado + utilidad;
   const rows = breakdown||[];
   const breakdownHtml = rows.length ? rows.map(b=>`
     <div class="flex items-center justify-between" style="padding:4px 0">
@@ -277,8 +281,12 @@ function renderCapitalCards(aportado, invertido, breakdown){
       <p class="text-white text-sm font-display font-bold mt-1">${clp(invertido)}</p>
     </div>
     <div class="bg-[#101319] border border-[#1E232B] rounded-xl p-3 text-center">
-      <p class="text-[#7C828D] text-[10px] uppercase">Saldo</p>
-      <p class="text-sm font-display font-bold mt-1" style="color:${saldo>=0?'#00FF87':'#F0453A'}">${clp(saldo)}</p>
+      <p class="text-[#7C828D] text-[10px] uppercase">Caja</p>
+      <p class="text-sm font-display font-bold mt-1" style="color:${caja>=0?'#00FF87':'#F0453A'}">${clp(caja)}</p>
+    </div>
+    <div class="bg-[#101319] border border-[#1E232B] rounded-xl p-3 text-center">
+      <p class="text-[#7C828D] text-[10px] uppercase">Patrimonio</p>
+      <p class="text-[#00FF87] text-sm font-display font-bold mt-1">${clp(patrimonio)}</p>
     </div>
     <div id="aportadoDetail" class="hidden bg-[#101319] border border-[#1E232B] rounded-xl p-3" style="grid-column:1/-1">
       ${breakdownHtml}
@@ -320,7 +328,8 @@ function renderInvestor(){
     roiEl.textContent = aportado>0 ? pct(utilidad/aportado*100)+' sobre lo aportado' : '';
 
     const breakdown = DATA.libro.map(r=>({ronda:r['ID_Ronda'], fecha:r['Fecha inicio']||get(r,'Fecha_inicio'), monto:toNumber(r['Monto_Aporte'])}));
-    renderCapitalCards(aportado, invertido, breakdown);
+    const ventasVendidas = sold.reduce((s,r)=>s+toNumber(r['Monto_Venta']),0);
+    renderCapitalCards(aportado, invertido, ventasVendidas, utilidad, breakdown);
 
     listEl.innerHTML = DATA.historico.map((r,idx)=>{
       const s=semaforo(r);
@@ -342,7 +351,8 @@ function renderInvestor(){
     roiEl.textContent = aportado>0 ? pct(utilidad/aportado*100)+' sobre lo aportado' : '';
 
     const breakdown = DATA.libro.filter(r=>r['Aportante']===name).map(r=>({ronda:r['ID_Ronda'], fecha:r['Fecha inicio']||get(r,'Fecha_inicio'), monto:toNumber(r['Monto_Aporte'])}));
-    renderCapitalCards(aportado, invertido, breakdown);
+    const ventasVendidas = soldRows.reduce((s,r)=>s+toNumber(r['Venta_Asignada']),0);
+    renderCapitalCards(aportado, invertido, ventasVendidas, utilidad, breakdown);
 
     listEl.innerHTML = rows.map((r,idx)=>{
       const s=semaforo(r);
@@ -424,6 +434,15 @@ function toggleGastos(idx){
 }
 
 function renderSellcar(){
+  const seenCap=new Set(); let aportadoFondo=0;
+  DATA.autos.forEach(r=>{ const k=r['ID_Ronda']+'|'+r['Aportante']; if(!seenCap.has(k)){seenCap.add(k); aportadoFondo+=toNumber(r['Monto_Aporte']);} });
+  const invertidoFondo = DATA.autos.reduce((s,r)=>s+toNumber(r['Inversion_Asignada']),0);
+  const ventasFondo = DATA.historico.filter(r=>r['Estado']==='Vendido').reduce((s,r)=>s+toNumber(r['Monto_Venta']),0);
+  const caja = aportadoFondo + ventasFondo - invertidoFondo;
+  document.getElementById('sellcarCaja').innerHTML = `
+    <p class="text-[#667085] text-[10px] uppercase">Caja disponible</p>
+    <p class="text-lg font-bold mt-1" style="color:${caja>=0?'#0057FF':'#F0453A'}">${clp(caja)}</p>`;
+
   const rows = DATA.historico.map(r=>({row:r, s:semaforo(r)})).sort((a,b)=>a.s.rank-b.s.rank);
 
   const counts = {0:0,1:0,2:0,3:0};
