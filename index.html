@@ -164,10 +164,10 @@ const CONFIG = {
   libroCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vT94Js04QCMYGbJuc2k4fFIwC8hAPG9q-oV_Sxy3VJ0wItY0FerlcB3cfeNwOLci6LP6oFzUeybtPX3/pub?gid=1992396765&single=true&output=csv"
 };
 
-const FALLBACK_HISTORICO = `ID_Ronda,Marca,Modelo,Patente,Fecha_Compra,Fecha_Venta,Gasto_Compra,Gasto_Plataforma,Gasto_Arreglos,Gasto_Seguro,Gasto_Transferencia,Gasto_Lavado,Monto_Publicado,Monto_Venta,ID_Auto,Estado,Monto _Inversión,Utilidad_Bruta,Utilidad_Fondo,Utilidad_Sellcar,Clave
-R1,VW,Amarok,PW3030,2026/01/01,2026/03/01,"$15.000.000","$70.000",-,"$60.000","$120.000","$50.000","$23.000.000","$22.000.000",A1,Vendido,"$15.300.000","$6.700.000","$2.680.000","$4.020.000",R1-1
-R1,Toyota,Yaris,WX3045,2026/03/01,2026/04/01,"$20.000.000","$70.000",-,"$60.000","$120.000","$50.000","$23.500.000","$22.000.000",A2,Vendido,"$20.300.000","$1.700.000","$680.000","$1.020.000",R1-2
-R1,Ferrari,Rojo,AA6750,2026/07/01,,"$5.000.000","$70.000",-,"$60.000","$120.000","$50.000","$6.500.000",,A3,En plazo,"$5.300.000","($5.300.000)","($2.120.000)","($3.180.000)",R1-3`;
+const FALLBACK_HISTORICO = `ID_Ronda,Marca,Modelo,Patente,Fecha_Compra,Fecha_Venta,Gasto_Compra,Gasto_Plataforma,Gasto_Arreglos,Gasto_Seguro,Gasto_Transferencia,Gasto_Lavado,Gasto_Otros,Monto_Publicado,Monto_Venta,ID_Auto,Estado,Monto _Inversión,Utilidad_Bruta,Utilidad_Fondo,Utilidad_Sellcar,Clave
+R1,VW,Amarok,PW3030,2026/01/01,2026/03/01,"$15.000.000","$70.000",-,"$60.000","$120.000","$50.000",-,"$23.000.000","$22.000.000",A1,Vendido,"$15.300.000","$6.700.000","$2.680.000","$4.020.000",R1-1
+R1,Toyota,Yaris,WX3045,2026/03/01,2026/04/01,"$20.000.000","$70.000",-,"$60.000","$120.000","$50.000",-,"$23.500.000","$22.000.000",A2,Vendido,"$20.300.000","$1.700.000","$680.000","$1.020.000",R1-2
+R1,Ferrari,Rojo,AA6750,2026/07/01,,"$5.000.000","$70.000",-,"$60.000","$120.000","$50.000",-,"$6.500.000",,A3,En plazo,"$5.300.000","($5.300.000)","($2.120.000)","($3.180.000)",R1-3`;
 
 const FALLBACK_AUTOS = `ID_Ronda,Aportante,Monto_Aporte,Pct_Participacion,ID_Vehiculo,Marca,Modelo,Estado,Fecha_Compra,Fecha_Venta,Inversion_Asignada,Venta_Asignada,Utilidad_Bruta_Asignada,Utilidad_Fondo_Asignada,ROI
 R1,Fela,"$14.300.000","31,8%",A1,VW,Amarok,Vendido,2026/01/01,2026/03/01,"$4.862.000","$6.991.111","$2.129.111","$851.644","17,5%"
@@ -334,8 +334,8 @@ function renderInvestor(){
     listEl.innerHTML = DATA.historico.map((r,idx)=>{
       const s=semaforo(r);
       const compra=toNumber(r['Gasto_Compra']), venta=toNumber(r['Monto_Venta']), utilidadCar=toNumber(r['Utilidad_Fondo']);
-      const gItems={p:toNumber(r['Gasto_Plataforma']),a:toNumber(r['Gasto_Arreglos']),s:toNumber(r['Gasto_Seguro']),t:toNumber(r['Gasto_Transferencia']),l:toNumber(r['Gasto_Lavado'])};
-      const gastoTotal=gItems.p+gItems.a+gItems.s+gItems.t+gItems.l;
+      const gItems={p:toNumber(r['Gasto_Plataforma']),a:toNumber(r['Gasto_Arreglos']),s:toNumber(r['Gasto_Seguro']),t:toNumber(r['Gasto_Transferencia']),l:toNumber(r['Gasto_Lavado']),o:toNumber(r['Gasto_Otros'])};
+      const gastoTotal=gItems.p+gItems.a+gItems.s+gItems.t+gItems.l+gItems.o;
       return investorCard(r['Marca']+' '+r['Modelo'], r['ID_Ronda'], compra, venta, utilidadCar, s, r['Estado']==='Vendido', gastoTotal, gItems, idx);
     }).join('');
   } else {
@@ -364,9 +364,10 @@ function renderInvestor(){
         a:toNumber(hRow['Gasto_Arreglos'])*pctPart,
         s:toNumber(hRow['Gasto_Seguro'])*pctPart,
         t:toNumber(hRow['Gasto_Transferencia'])*pctPart,
-        l:toNumber(hRow['Gasto_Lavado'])*pctPart
-      } : {p:0,a:0,s:0,t:0,l:0};
-      const gastoTotal=gItems.p+gItems.a+gItems.s+gItems.t+gItems.l;
+        l:toNumber(hRow['Gasto_Lavado'])*pctPart,
+        o:toNumber(hRow['Gasto_Otros'])*pctPart
+      } : {p:0,a:0,s:0,t:0,l:0,o:0};
+      const gastoTotal=gItems.p+gItems.a+gItems.s+gItems.t+gItems.l+gItems.o;
       return investorCard(r['Marca']+' '+r['Modelo'], r['ID_Ronda'], compra, venta, utilidadCar, s, r['Estado']==='Vendido', gastoTotal, gItems, idx);
     }).join('');
   }
@@ -406,12 +407,13 @@ function investorCard(name, ronda, compra, venta, utilidad, s, vendido, gastoTot
         <div><p class="text-[#7C828D] text-[10px] uppercase">Venta</p><p class="text-white text-xs font-medium mt-1">${ventaTxt}</p></div>
         <div><p class="text-[#7C828D] text-[10px] uppercase">Utilidad</p><p class="text-xs font-bold mt-1" style="color:${utilidadColor}">${utilidadTxt}</p></div>
       </div>
-      <div id="invGastosDetail${idx}" class="hidden grid grid-cols-5 gap-1 text-center pt-2 mt-2 border-t border-[#1E232B]">
-        <div><p class="text-[#7C828D] text-[8px] uppercase">Plataf.</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gItems.p>0?clp(gItems.p):'-'}</p></div>
-        <div><p class="text-[#7C828D] text-[8px] uppercase">Arreglos</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gItems.a>0?clp(gItems.a):'-'}</p></div>
-        <div><p class="text-[#7C828D] text-[8px] uppercase">Seguro</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gItems.s>0?clp(gItems.s):'-'}</p></div>
-        <div><p class="text-[#7C828D] text-[8px] uppercase">Transf.</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gItems.t>0?clp(gItems.t):'-'}</p></div>
-        <div><p class="text-[#7C828D] text-[8px] uppercase">Lavado</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gItems.l>0?clp(gItems.l):'-'}</p></div>
+      <div id="invGastosDetail${idx}" class="hidden grid grid-cols-3 gap-2 text-center pt-2 mt-2 border-t border-[#1E232B]">
+        <div><p class="text-[#7C828D] text-[9px] uppercase">Plataf.</p><p class="text-[#F0453A] text-[11px] mt-0.5">${gItems.p>0?clp(gItems.p):'-'}</p></div>
+        <div><p class="text-[#7C828D] text-[9px] uppercase">Arreglos</p><p class="text-[#F0453A] text-[11px] mt-0.5">${gItems.a>0?clp(gItems.a):'-'}</p></div>
+        <div><p class="text-[#7C828D] text-[9px] uppercase">Seguro</p><p class="text-[#F0453A] text-[11px] mt-0.5">${gItems.s>0?clp(gItems.s):'-'}</p></div>
+        <div><p class="text-[#7C828D] text-[9px] uppercase">Transf.</p><p class="text-[#F0453A] text-[11px] mt-0.5">${gItems.t>0?clp(gItems.t):'-'}</p></div>
+        <div><p class="text-[#7C828D] text-[9px] uppercase">Lavado</p><p class="text-[#F0453A] text-[11px] mt-0.5">${gItems.l>0?clp(gItems.l):'-'}</p></div>
+        <div><p class="text-[#7C828D] text-[9px] uppercase">Otros</p><p class="text-[#F0453A] text-[11px] mt-0.5">${gItems.o>0?clp(gItems.o):'-'}</p></div>
       </div>
       <p class="text-[#7C828D] text-[11px] mt-3">${s.label}</p>
     </div>`;
@@ -460,8 +462,8 @@ function renderSellcar(){
     const publicado = toNumber(r['Monto_Publicado']);
     const vendido = r['Estado']==='Vendido';
     const compra = toNumber(r['Gasto_Compra']);
-    const gPlataforma=toNumber(r['Gasto_Plataforma']), gArreglos=toNumber(r['Gasto_Arreglos']), gSeguro=toNumber(r['Gasto_Seguro']), gTransferencia=toNumber(r['Gasto_Transferencia']), gLavado=toNumber(r['Gasto_Lavado']);
-    const gastos = gPlataforma+gArreglos+gSeguro+gTransferencia+gLavado;
+    const gPlataforma=toNumber(r['Gasto_Plataforma']), gArreglos=toNumber(r['Gasto_Arreglos']), gSeguro=toNumber(r['Gasto_Seguro']), gTransferencia=toNumber(r['Gasto_Transferencia']), gLavado=toNumber(r['Gasto_Lavado']), gOtros=toNumber(r['Gasto_Otros']);
+    const gastos = gPlataforma+gArreglos+gSeguro+gTransferencia+gLavado+gOtros;
     const venta = toNumber(r['Monto_Venta']);
     const margen = toNumber(r['Utilidad_Bruta']);
     const rentabilidad = monto>0 ? (margen/monto*100) : 0;
@@ -490,12 +492,13 @@ function renderSellcar(){
           <div style="cursor:pointer" onclick="toggleGastos(${idx})"><p class="text-[#667085] text-[10px] uppercase">Gastos <span id="gastosArrow${idx}">▸</span></p><p class="text-[#F0453A] text-xs font-medium mt-0.5">${clp(gastos)}</p></div>
           <div><p class="text-[#667085] text-[10px] uppercase">Publicado</p><p class="text-[#0B0E14] text-xs font-medium mt-0.5">${publicado>0?clp(publicado):'-'}</p></div>
         </div>`}
-        <div id="gastosDetail${idx}" class="hidden grid grid-cols-5 gap-1 text-center pt-2 mt-2" style="border-top:0.5px solid #E3E7EC">
-          <div><p class="text-[#667085] text-[8px] uppercase">Plataf.</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gPlataforma>0?clp(gPlataforma):'-'}</p></div>
-          <div><p class="text-[#667085] text-[8px] uppercase">Arreglos</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gArreglos>0?clp(gArreglos):'-'}</p></div>
-          <div><p class="text-[#667085] text-[8px] uppercase">Seguro</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gSeguro>0?clp(gSeguro):'-'}</p></div>
-          <div><p class="text-[#667085] text-[8px] uppercase">Transf.</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gTransferencia>0?clp(gTransferencia):'-'}</p></div>
-          <div><p class="text-[#667085] text-[8px] uppercase">Lavado</p><p class="text-[#F0453A] text-[10px] mt-0.5">${gLavado>0?clp(gLavado):'-'}</p></div>
+        <div id="gastosDetail${idx}" class="hidden grid grid-cols-3 gap-2 text-center pt-2 mt-2" style="border-top:0.5px solid #E3E7EC">
+          <div><p class="text-[#667085] text-[9px] uppercase">Plataf.</p><p class="text-[#F0453A] text-[11px] mt-0.5">${gPlataforma>0?clp(gPlataforma):'-'}</p></div>
+          <div><p class="text-[#667085] text-[9px] uppercase">Arreglos</p><p class="text-[#F0453A] text-[11px] mt-0.5">${gArreglos>0?clp(gArreglos):'-'}</p></div>
+          <div><p class="text-[#667085] text-[9px] uppercase">Seguro</p><p class="text-[#F0453A] text-[11px] mt-0.5">${gSeguro>0?clp(gSeguro):'-'}</p></div>
+          <div><p class="text-[#667085] text-[9px] uppercase">Transf.</p><p class="text-[#F0453A] text-[11px] mt-0.5">${gTransferencia>0?clp(gTransferencia):'-'}</p></div>
+          <div><p class="text-[#667085] text-[9px] uppercase">Lavado</p><p class="text-[#F0453A] text-[11px] mt-0.5">${gLavado>0?clp(gLavado):'-'}</p></div>
+          <div><p class="text-[#667085] text-[9px] uppercase">Otros</p><p class="text-[#F0453A] text-[11px] mt-0.5">${gOtros>0?clp(gOtros):'-'}</p></div>
         </div>
       </div>`;
   }).join('');
