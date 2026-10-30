@@ -169,8 +169,8 @@
         <span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;background:#00FF87"></i>En autos</span>
         <span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;background:#F0453A"></i>Parada</span>
       </div>
-      <div id="informeBars" style="display:flex;align-items:flex-end;gap:4px;height:170px"></div>
-      <div id="informeLabels" style="display:flex;gap:4px;margin-top:6px"></div>
+      <div id="informeScroll" style="overflow-x:auto"><div id="informeInner"><div id="informeBars" style="display:flex;align-items:flex-end;gap:4px;height:170px"></div>
+      <div id="informeLabels" style="display:flex;gap:4px;margin-top:6px"></div></div></div>
     </div>
   </div>
 </div>
@@ -565,7 +565,7 @@ function renderInforme(){
     card('Promedio', avgSell!==null?avgSell+' d':'-', 'en vender', '#00FF87') +
     card('Plata parada', Math.round(idle)+' d', 'de '+n+' días', '#F0453A') +
     card('Parada hoy', fmtM(par[n-1]), 'sin invertir', '#F0453A');
-  const bucket=n>84?Math.ceil(n/12/7)*7:7;
+  const bucket=7;
   const W=[];
   for(let i=0;i<n;i+=bucket){
     let a=0,b=0,k=0;
@@ -573,10 +573,12 @@ function renderInforme(){
     const d=new Date(start.getTime()+i*day);
     W.push({a:a/k,b:b/k,l:d.getDate()+'/'+(d.getMonth()+1)});
   }
-  const mx=Math.max(...W.map(w=>w.a+w.b),1), H=150, show=W.length<=14;
+  const mx=Math.max(...W.map(w=>w.a+w.b),1), H=150, show=true;
   const seg=(v,color,txt)=>{ const h=v/mx*H; return h>0.5?`<div style="height:${h}px;background:${color};border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;letter-spacing:-.03em;white-space:nowrap;color:${txt};overflow:hidden">${show&&h>14?'$'+Math.round(v/1e6):''}</div>`:''; };
+  document.getElementById('informeInner').style.minWidth = Math.max(W.length*38,0)+'px';
   document.getElementById('informeBars').innerHTML = W.map(w=>`<div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;gap:2px">${seg(w.b,'#F0453A','#FFFFFF')}${seg(w.a,'#00FF87','#05060A')}</div>`).join('');
   document.getElementById('informeLabels').innerHTML = W.map(w=>`<span style="flex:1;min-width:0;text-align:center;font-size:10px;color:#7C828D">${w.l}</span>`).join('');
+  const sc=document.getElementById('informeScroll'); sc.scrollLeft=sc.scrollWidth;
 }
 
 async function loadData(){
