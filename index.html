@@ -268,7 +268,7 @@ function semaforo(row){
   if(row['Estado']==='Vendido'){
     const dc=parseDate(row['Fecha_Compra']), dv=parseDate(row['Fecha_Venta']);
     const dias=(dc&&dv)?Math.round((dv-dc)/86400000):null;
-    return {hex:'#9AA1AC', label:'Vendido', days:dias!==null?dias+' días':'Vendido', rank:3};
+    return {hex:'#9AA1AC', label:dias!==null?dias+' días en stock':'Vendido', days:dias!==null?dias+' días':'Vendido', rank:3};
   }
   const start=new Date((row['Fecha_Compra']||'').replace(/\//g,'-'));
   const days=Math.floor((new Date()-start)/86400000);
