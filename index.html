@@ -374,8 +374,8 @@ function renderInvestor(){
     const breakdown = DATA.libro.map(r=>({ronda:r['ID_Ronda'], fecha:r['Fecha inicio']||get(r,'Fecha_inicio'), monto:toNumber(r['Monto_Aporte'])}));
     renderCapitalCards(aportado, invertido, fm.ventas, utilidad, breakdown);
 
-    listEl.innerHTML = DATA.historico.map((r,idx)=>{
-      const s=semaforo(r);
+    listEl.innerHTML = DATA.historico.map(r=>({r,s:semaforo(r)})).sort((x,y)=>x.s.rank-y.s.rank).map(({r,s},idx)=>{
+
       const compra=toNumber(r['Gasto_Compra']), venta=toNumber(r['Monto_Venta']), utilidadCar=toNumber(r['Utilidad_Fondo']);
       const gItems={p:toNumber(r['Gasto_Plataforma']),a:toNumber(r['Gasto_Arreglos']),s:toNumber(r['Gasto_Seguro']),t:toNumber(r['Gasto_Transferencia']),l:toNumber(r['Gasto_Lavado']),o:toNumber(r['Gasto_Otros'])};
       const gastoTotal=gItems.p+gItems.a+gItems.s+gItems.t+gItems.l+gItems.o;
@@ -393,8 +393,7 @@ function renderInvestor(){
     const breakdown = DATA.libro.filter(r=>r['Aportante']===name).map(r=>({ronda:r['ID_Ronda'], fecha:r['Fecha inicio']||get(r,'Fecha_inicio'), monto:toNumber(r['Monto_Aporte'])}));
     renderCapitalCards(aportado, invertido, fm.ventas, utilidad, breakdown);
 
-    listEl.innerHTML = rows.map((r,idx)=>{
-      const s=semaforo(r);
+    listEl.innerHTML = rows.map(r=>({r,s:semaforo(r)})).sort((x,y)=>x.s.rank-y.s.rank).map(({r,s},idx)=>{
       const compra=toNumber(r['Inversion_Asignada']), venta=toNumber(r['Venta_Asignada']), utilidadCar=toNumber(r['Utilidad_Fondo_Asignada']);
       const hRow = historicoMap[r['ID_Ronda']+'|'+r['ID_Vehiculo']];
       const pctPart = toNumber(r['Pct_Participacion'])/100;
@@ -576,7 +575,7 @@ function renderInforme(){
     let a=0,b=0,k=0;
     for(let j=i;j<Math.min(n,i+bucket);j++){a+=inv[j];b+=par[j];k++;}
     const d=new Date(start.getTime()+i*day);
-    W.push({a:a/k,b:b/k,l:d.getDate()+'/'+(d.getMonth()+1)});
+    W.push({a:a/k,b:b/k,l:'S'+Math.ceil(d.getDate()/7)+'/'+String(d.getMonth()+1).padStart(2,'0')});
   }
   const mx=Math.max(...W.map(w=>w.a+w.b),1), H=150, show=true;
   const seg=(v,color,txt)=>{ const h=v/mx*H; return h>0.5?`<div style="height:${h}px;background:${color};border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;letter-spacing:-.03em;white-space:nowrap;color:${txt};overflow:hidden">${show&&h>14?'$'+Math.round(v/1e6):''}</div>`:''; };
